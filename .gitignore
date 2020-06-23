@@ -1,0 +1,4 @@
+/node_modules/
+/python-scripts/env/
+__pycache__/
+*.py[cod]
