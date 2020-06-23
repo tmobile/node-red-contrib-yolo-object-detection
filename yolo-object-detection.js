@@ -24,6 +24,7 @@ module.exports = (RED) => {
         if (!python) {
             python = globalContext.get('yoloserver')
         }
+
         if (!python || python.killed) {
             node.debug('Starting python server process')
             node.debug('Current dir is: ' + __dirname)
@@ -54,13 +55,7 @@ module.exports = (RED) => {
                     `Python server process terminated due to receipt of signal ${signal}`)
             })
         }
-        // TODO
-        // 22 Jun 13:25:30 - [debug] [yolo-object-detection:303f8140.0f1666] Init Node count is: 3
-        // 22 Jun 13:25:30 - [info] Started flows
-        // (node:24064) MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 data listeners added to [Socket]. Use emitter.setMaxListeners() to increase limit
-        // (Use `node --trace-warnings ...` to show where the warning was created)
-        // (node:24064) MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 data listeners added to [Socket]. Use emitter.setMaxListeners() to increase limit
-        // (node:24064) MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 close listeners added to [ChildProcess]. Use emitter.setMaxListeners() to increase limit
+
         node.on('close', (removed, done) => {
             nodeCount = globalContext.get('object-detector-node-count')
             node.debug('Pre-dec close Node count is: ' + nodeCount)
@@ -71,7 +66,6 @@ module.exports = (RED) => {
                 node.debug('Node removed, and is the last node, so cleaning up server')
                 python.kill()
             } else if (removed) {
-                nodeCount--
                 node.debug('Node removed, but not the last node')
             } else {
                 // Happens when the node is in the flow, and the flow is deployed or restarted
