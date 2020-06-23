@@ -1,9 +1,10 @@
 {
-    "name": "node-red-contrib-yolo-objectdetection",
+    "name": "node-red-contrib-yolo-object-detection",
     "version": "1.0.0",
     "description": "",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "postinstall" : "cd python-scripts && python3 -m venv env && source env/bin/activate && pip3 install -r requirements.txt"
     },
     "author": "",
     "license": "ISC",
