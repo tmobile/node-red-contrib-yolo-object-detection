@@ -17,7 +17,7 @@ def get_parent_dir(n=1):
 
 
 training_path = os.path.join(get_parent_dir(1), "1_Training")
-src_path = os.path.join(training_path, "src")
+src_path = os.path.dirname(os.path.abspath(__file__))
 utils_path = os.path.join(training_path, "Utils")
 
 sys.path.append(src_path)

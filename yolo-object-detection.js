@@ -38,7 +38,7 @@ module.exports = (RED) => {
             })
 
             python.stderr.on('data', (data) => {
-                if (data.toString().includes('Running on http://0.0.0.0')) {
+                if (data.toString().includes('Model ready')) {
                     serverStatus = { fill: 'green', shape: 'dot', text: 'connected' }
                     node.status(serverStatus)
                 } else if (node.status.text !== 'connected') {
