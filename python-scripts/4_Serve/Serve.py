@@ -123,7 +123,7 @@ def detect():
         right = int(detection[2])
         bottom = int(detection[3])
         class_id = int(detection[4])
-        class_name = yolo.class_names[class_id],
+        class_name = yolo.class_names[class_id]
         score = float(detection[5])
         final_detection = {
             'bbox': [ left, top, right, bottom ],
