@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
 import base64
+from gevent.pywsgi import WSGIServer
 import io
 import os
+import signal
 import sys
 import shutil
 
@@ -144,6 +146,17 @@ def detect():
     )
     return response
 
+
+def sig_handler(signum, frame):
+    print("Caught signal: ", signum)
+    print("Exiting...")
+    exit(0)
+
+
 if __name__ == "__main__":
+    signal.signal(signal.SIGTERM, sig_handler)
+    signal.signal(signal.SIGINT, sig_handler)
     yolo = init_yolo(model_weights, anchors_path, score, gpu_num, model_image_size)
-    app.run(host='0.0.0.0', debug=False, port=8888, threaded=False)
+    # app.run(host='0.0.0.0', debug=False, port=8888, threaded=False)
+    http_server = WSGIServer(('', 8888), app)
+    http_server.serve_forever()
