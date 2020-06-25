@@ -7,6 +7,7 @@ import os
 import signal
 import sys
 import shutil
+from threading import Thread
 
 
 def get_parent_dir(n=1):
@@ -148,14 +149,30 @@ def detect():
 
 
 def sig_handler(signum, frame):
-    print("Caught signal: ", signum)
+    print("Serve caught signal:", signum)
     print("Exiting...")
-    exit(0)
+    os._exit(0)
+
+
+def run_video_thread(srcpath):
+    try:
+        import ServeVideoPiCamera
+    except:
+        import ServeVideo
+        ServeVideo.main()
+
+
+def run_video():
+    dirpath = os.path.dirname(os.path.realpath(__file__))
+    srcpath = dirpath + "/ServeVideo.py"
+    video_thread = Thread(target = run_video_thread, args = (srcpath, ))
+    video_thread.start()
 
 
 if __name__ == "__main__":
     signal.signal(signal.SIGTERM, sig_handler)
     signal.signal(signal.SIGINT, sig_handler)
+    run_video()
     yolo = init_yolo(model_weights, anchors_path, score, gpu_num, model_image_size)
     # app.run(host='0.0.0.0', debug=False, port=8888, threaded=False)
     http_server = WSGIServer(('', 8888), app)
