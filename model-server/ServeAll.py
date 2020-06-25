@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 
 import base64
+from gevent.pywsgi import WSGIServer
 import io
 import os
+import signal
 import sys
 import shutil
+from threading import Thread
 
 
 def get_parent_dir(n=1):
@@ -16,9 +19,8 @@ def get_parent_dir(n=1):
     return current_path
 
 
-training_path = os.path.join(get_parent_dir(1), "1_Training")
-src_path = os.path.dirname(os.path.abspath(__file__))
-utils_path = os.path.join(training_path, "Utils")
+src_path = os.path.join(get_parent_dir(1), "2_Training", "src")
+utils_path = os.path.join(get_parent_dir(1), "Utils")
 
 sys.path.append(src_path)
 sys.path.append(utils_path)
@@ -35,7 +37,7 @@ from PIL import Image, ImageFont, ImageDraw
 
 # Set up folder names for default values
 current_folder = os.path.dirname(os.path.abspath(__file__))
-data_folder = os.path.join(training_path, "Data")
+data_folder = os.path.join(get_parent_dir(n=1), "Data")
 model_folder = os.path.join(data_folder, "Model_Weights")
 image_folder = os.path.join(data_folder, "Source_Images")
 image_test_folder = os.path.join(image_folder, "Test_Images")
@@ -54,12 +56,12 @@ elif YOLO_MODEL == "custom-tiny":
 elif YOLO_MODEL == "yolov3":
     anchors_path = os.path.join(src_path, "keras_yolo3", "model_data", "yolo_anchors.txt")
     classes_path = os.path.join(src_path, "keras_yolo3", "model_data", "coco_classes.txt")
-    model_weights = os.path.join(model_folder, "Default", "yolo.h5")
-# Tiny prebuilt model settings.
+    model_weights = os.path.join(src_path, "keras_yolo3", "yolo.h5")
+# Tiny model settings.
 elif YOLO_MODEL == "yolov3-tiny":
     anchors_path = os.path.join(src_path, "keras_yolo3", "model_data", "yolo-tiny_anchors.txt")
     classes_path = os.path.join(src_path, "keras_yolo3", "model_data", "coco_classes.txt")
-    model_weights = os.path.join(model_folder, "Default", "yolov3-tiny.h5")
+    model_weights = os.path.join(src_path, "keras_yolo3", "yolov3-tiny.h5")
 
 gpu_num = 1
 model_image_size = (416, 416)
@@ -145,9 +147,39 @@ def detect():
     )
     return response
 
+
+def sig_handler(signum, frame):
+    print("Serve caught signal:", signum)
+    print("Exiting...")
+    os._exit(0)
+
+
+def run_video_thread(srcpath, camera_mode):
+    try:
+        if not camera_mode or camera_mode == "picamera":
+            print("Running ServeVideoPiCamera...")
+            import ServeVideoPiCamera
+    except:
+        print("Caught camera exception from ServeVideoPiCamera.")
+    finally:
+        if not camera_mode or camera_mode == "opencv":
+            print("Running ServeVideo...")
+            import ServeVideo
+            ServeVideo.main()
+
+
+def run_video(camera_mode):
+    dirpath = os.path.dirname(os.path.realpath(__file__))
+    srcpath = dirpath + "/ServeVideo.py"
+    video_thread = Thread(target = run_video_thread, args = (srcpath, camera_mode))
+    video_thread.start()
+
+
 if __name__ == "__main__":
-    from gevent.pywsgi import WSGIServer
+    signal.signal(signal.SIGTERM, sig_handler)
+    signal.signal(signal.SIGINT, sig_handler)
+    run_video(os.getenv("CAMERA_MODE", ""))
     yolo = init_yolo(model_weights, anchors_path, score, gpu_num, model_image_size)
+    # app.run(host='0.0.0.0', debug=False, port=8888, threaded=False)
     http_server = WSGIServer(('', 8888), app)
     http_server.serve_forever()
-    # app.run(host='0.0.0.0', debug=False, port=8888, threaded=False)

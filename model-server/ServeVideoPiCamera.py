@@ -89,7 +89,7 @@ class StreamingHandler(BaseHTTPRequestHandler):
                         # Save the image
                         buf= BytesIO()
                         pil_im.save(buf, format= 'JPEG')
-			# Save latest frame to filesytem.
+                        # Save latest frame to filesytem.
                         pil_im.save("frame-buffer.jpg", format= 'JPEG')
                         # Buffer frame until fully saved.
                         os.rename("frame-buffer.jpg", "frame.jpg")

@@ -68,7 +68,7 @@ def quit(sig,frame):
 
 
 def main():
-    signal.signal(signal.SIGINT, quit)
+    # Disable for parent exec: signal.signal(signal.SIGINT, quit)
     global capture
     global server
     global img
