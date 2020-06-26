@@ -4,7 +4,7 @@
     "description": "",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "postinstall" : "python3 -m venv env --system-site-packages && . env/bin/activate && pip3 install -r model-server/requirements.txt"
+        "postinstall": "python3 -m venv env --system-site-packages && . env/bin/activate && pip3 install -r model-server/requirements.txt"
     },
     "author": "",
     "license": "ISC",
