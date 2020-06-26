@@ -19,11 +19,12 @@ def get_parent_dir(n=1):
     return current_path
 
 
-src_path = os.path.join(get_parent_dir(1), "2_Training", "src")
-utils_path = os.path.join(get_parent_dir(1), "Utils")
+training_path = os.path.join(get_parent_dir(1), "1_Training")
+src_path = os.path.dirname(os.path.abspath(__file__))
+# utils_path = os.path.join(training_path, "Utils")
 
 sys.path.append(src_path)
-sys.path.append(utils_path)
+# sys.path.append(utils_path)
 
 # Get model type if specified.  Fallback to default if not specified.
 YOLO_MODEL = os.getenv("YOLO_MODEL", "yolov3")
@@ -37,7 +38,7 @@ from PIL import Image, ImageFont, ImageDraw
 
 # Set up folder names for default values
 current_folder = os.path.dirname(os.path.abspath(__file__))
-data_folder = os.path.join(get_parent_dir(n=1), "Data")
+data_folder = os.path.join(training_path, "Data")
 model_folder = os.path.join(data_folder, "Model_Weights")
 image_folder = os.path.join(data_folder, "Source_Images")
 image_test_folder = os.path.join(image_folder, "Test_Images")
@@ -56,12 +57,12 @@ elif YOLO_MODEL == "custom-tiny":
 elif YOLO_MODEL == "yolov3":
     anchors_path = os.path.join(src_path, "keras_yolo3", "model_data", "yolo_anchors.txt")
     classes_path = os.path.join(src_path, "keras_yolo3", "model_data", "coco_classes.txt")
-    model_weights = os.path.join(src_path, "keras_yolo3", "yolo.h5")
-# Tiny model settings.
+    model_weights = os.path.join(model_folder, "Default", "yolo.h5")
+# Tiny prebuilt model settings.
 elif YOLO_MODEL == "yolov3-tiny":
     anchors_path = os.path.join(src_path, "keras_yolo3", "model_data", "yolo-tiny_anchors.txt")
     classes_path = os.path.join(src_path, "keras_yolo3", "model_data", "coco_classes.txt")
-    model_weights = os.path.join(src_path, "keras_yolo3", "yolov3-tiny.h5")
+    model_weights = os.path.join(model_folder, "Default", "yolov3-tiny.h5")
 
 gpu_num = 1
 model_image_size = (416, 416)
@@ -82,7 +83,7 @@ def init_yolo(model_weights, anchors_path, score, gpu_num, model_image_size):
             "model_image_size": model_image_size,
         }
     )
-    print("Model ready...")
+    print("MODELSERVER: Model initialized")
     return yolo
 
 

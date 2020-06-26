@@ -7,7 +7,7 @@ module.exports = (RED) => {
 
     let serverStatus = { fill: 'yellow', shape: 'dot', text: 'connecting' }
 
-    spawn('source', ['model-server/env/bin/activate'])
+    // spawn('.', ['env/bin/activate'])
 
     // Initialize the TensorFlow.js library and store it in the Global
     // context to make sure we are running only one instance
@@ -30,7 +30,7 @@ module.exports = (RED) => {
         if (!python || python.killed) {
             node.debug('Starting python server process')
             node.debug('Current dir is: ' + __dirname)
-            python = spawn('env/bin/python3', ['python-scripts/4_Serve/ServeAll.py'], {'cwd': __dirname})
+            python = spawn('env/bin/python3', ['model-server/4_Serve/ServeAll.py'], {'cwd': __dirname})
 
             globalContext.set('yoloserver', python)
             node.log('Loaded Yoloserver')
@@ -42,7 +42,7 @@ module.exports = (RED) => {
 
             python.stderr.on('data', (data) => {
                 console.log(data.toString())
-                if (data.toString().includes('Running on http://0.0.0.0')) {
+                if (data.toString().includes('MODELSERVER: Model initialized')) {
                     serverStatus = { fill: 'green', shape: 'dot', text: 'connected' }
                     node.status(serverStatus)
                 } else if (node.status.text !== 'connected') {
