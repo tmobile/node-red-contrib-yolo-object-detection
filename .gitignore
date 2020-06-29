@@ -2,3 +2,4 @@
 /model-server/env/
 __pycache__/
 *.py[cod]
+/env/

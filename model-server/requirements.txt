@@ -4,7 +4,7 @@ absl-py==0.7.1
 astor==0.8.0
 attrs==19.1.0
 backcall==0.1.0
-bleach==3.1.0
+bleach==3.1.4
 certifi==2019.6.16
 chardet==3.0.4
 cycler==0.10.0
@@ -41,9 +41,9 @@ mpmath==1.1.0
 nbconvert==5.5.0
 nbformat==4.4.0
 notebook==5.7.8
-numpy==1.17.3
-#opencv-python==4.1.2.30
-opencv-python
+# Don't override system apt installed numpy and opencv-python on Raspbian.
+numpy ; platform_machine != 'armv7l'
+opencv-python ; platform_machine != 'armv7l'
 pandas==0.24.2
 pandocfilters==1.4.2
 parso==0.5.0
@@ -60,7 +60,6 @@ pyrsistent==0.15.3
 python-dateutil==2.8.0
 pytz==2019.1
 PyYAML==5.1.1
-# pyzmq==18.0.2
 pyzmq
 qtconsole==4.5.1
 requests==2.22.0
@@ -70,12 +69,7 @@ Send2Trash==1.5.0
 six==1.12.0
 sklearn==0.0
 sympy==1.6
-# tensorflow==2.2.0
 tensorflow
-# tensorboard==2.2.2
-# tensorboard
-# tensorflow-estimator==2.2.0
-# tensorflow-estimator
 termcolor==1.1.0
 terminado==0.8.2
 testpath==0.4.2
@@ -88,4 +82,4 @@ Werkzeug==1.0.1
 widgetsnbextension==3.5.0
 wrapt==1.11.2
 Flask==1.1.2
-gevent==20.6.2
+gevent
