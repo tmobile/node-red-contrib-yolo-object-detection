@@ -42,7 +42,7 @@ nbconvert==5.5.0
 nbformat==4.4.0
 notebook==5.7.8
 # Don't override system apt installed numpy and opencv-python on Raspbian.
-numpy==1.17.3 ; platform_machine != 'armv7l'
+numpy ; platform_machine != 'armv7l'
 opencv-python==4.1.2.30 ; python_version != 'armv7l'
 pandas==0.24.2
 pandocfilters==1.4.2
