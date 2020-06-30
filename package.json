@@ -6,8 +6,8 @@
         "test": "echo \"Error: no test specified\" && exit 1",
         "postinstall": "python3 -m venv env --system-site-packages && . env/bin/activate && pip3 install -r model-server/requirements.txt"
     },
-    "author": "",
-    "license": "ISC",
+    "author": "T-Mobile",
+    "license": "Apache-2.0",
     "node-red": {
         "nodes": {
             "yolo-object-detection": "yolo-object-detection.js"
