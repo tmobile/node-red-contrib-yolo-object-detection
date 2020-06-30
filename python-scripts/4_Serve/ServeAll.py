@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 
 import base64
+from gevent.pywsgi import WSGIServer
 import io
 import os
+import signal
 import sys
 import shutil
+from threading import Thread
 
 
 def get_parent_dir(n=1):
@@ -144,6 +147,39 @@ def detect():
     )
     return response
 
+
+def sig_handler(signum, frame):
+    print("Serve caught signal:", signum)
+    print("Exiting...")
+    os._exit(0)
+
+
+def run_video_thread(srcpath, camera_mode):
+    try:
+        if not camera_mode or camera_mode == "picamera":
+            print("Running ServeVideoPiCamera...")
+            import ServeVideoPiCamera
+    except:
+        print("Caught camera exception from ServeVideoPiCamera.")
+    finally:
+        if not camera_mode or camera_mode == "opencv":
+            print("Running ServeVideo...")
+            import ServeVideo
+            ServeVideo.main()
+
+
+def run_video(camera_mode):
+    dirpath = os.path.dirname(os.path.realpath(__file__))
+    srcpath = dirpath + "/ServeVideo.py"
+    video_thread = Thread(target = run_video_thread, args = (srcpath, camera_mode))
+    video_thread.start()
+
+
 if __name__ == "__main__":
+    signal.signal(signal.SIGTERM, sig_handler)
+    signal.signal(signal.SIGINT, sig_handler)
+    run_video(os.getenv("CAMERA_MODE", ""))
     yolo = init_yolo(model_weights, anchors_path, score, gpu_num, model_image_size)
-    app.run(host='0.0.0.0', debug=False, port=8888, threaded=False)
+    # app.run(host='0.0.0.0', debug=False, port=8888, threaded=False)
+    http_server = WSGIServer(('', 8888), app)
+    http_server.serve_forever()

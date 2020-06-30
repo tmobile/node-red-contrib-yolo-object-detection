@@ -3,7 +3,8 @@
     "version": "1.0.0",
     "description": "",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "postinstall" : "python3 -m venv env --system-site-packages && . env/bin/activate && pip3 install -r python-scripts/requirements.txt"
     },
     "author": "",
     "license": "ISC",
