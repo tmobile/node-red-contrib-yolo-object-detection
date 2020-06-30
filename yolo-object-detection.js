@@ -28,25 +28,25 @@ module.exports = (RED) => {
         if (!python || python.killed) {
             node.debug('Starting python server process')
             node.debug('Current dir is: ' + __dirname)
-            python = spawn('env/bin/python3', ['python-scripts/4_Serve/ServeAll.py'], {'cwd': __dirname})
+            python = spawn('env/bin/python3', ['model-server/ServeAll.py'], {'cwd': __dirname})
 
             globalContext.set('yoloserver', python)
             node.log('Loaded Yoloserver')
 
             python.stdout.on('data', (data) => {
                 console.log(data.toString())
-                node.debug(data.toString())
-            })
-
-            python.stderr.on('data', (data) => {
-                console.log(data.toString())
-                if (data.toString().includes('Running on http://0.0.0.0')) {
+                if (data.toString().includes('MODELSERVER: Model initialized')) {
                     serverStatus = { fill: 'green', shape: 'dot', text: 'connected' }
                     node.status(serverStatus)
                 } else if (node.status.text !== 'connected') {
                     serverStatus = { fill: 'yellow', shape: 'dot', text: 'connecting' }
                     node.status(serverStatus)
                 }
+                node.debug(data.toString())
+            })
+
+            python.stderr.on('data', (data) => {
+                console.log(data.toString())
                 node.debug(data.toString())
             })
 

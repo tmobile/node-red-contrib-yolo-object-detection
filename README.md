@@ -7,7 +7,7 @@ on the input and output a list of detected objects.
 
 ## Install
 
-`cd ~/.node-red && npm install --only=prod @tmus/node-red-contrib-yolo-object-detector`
+TODO need to publish
 
 ## Usage
 
@@ -16,3 +16,10 @@ Drag and Drop the "Yolo Object Detector" onto the canvas.
 ## Advanced Usage
 
 This module starts a local Python model server on port 8888 (TODO - make this configurable)
+
+## Testing changes locally
+
+1. Clone this repo and CD to repo folder
+2. Run `npm link`
+3. CD to your local node-red modules folder (`.node-red` or similar)
+4. `npm link node-red-contrib-yolo-object-detection`
