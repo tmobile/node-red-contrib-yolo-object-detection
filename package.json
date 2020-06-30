@@ -1,20 +1,23 @@
 {
-    "name": "node-red-contrib-yolo-object-detection",
+    "name": "@tmus/node-red-contrib-yolo-object-detection",
     "version": "1.0.0",
     "description": "",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "postinstall": "python3 -m venv env --system-site-packages && . env/bin/activate && pip3 install -r model-server/requirements.txt"
     },
-    "author": "",
-    "license": "ISC",
+    "author": "T-Mobile",
+    "license": "Apache-2.0",
     "node-red": {
         "nodes": {
-            "lower-case": "yolo-object-detection.js"
+            "yolo-object-detection": "yolo-object-detection.js"
         }
     },
     "files": [
-        "model-server/*"
+        "1_Training/*",
+        "model-server/*",
+        "yolo-object-detection.html",
+        "yolo-object-detection.js"
     ],
     "devDependencies": {
         "eslint": "^7.3.0",
