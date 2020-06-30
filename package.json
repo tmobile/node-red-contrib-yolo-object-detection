@@ -1,5 +1,5 @@
 {
-    "name": "node-red-contrib-yolo-object-detection",
+    "name": "@tmus/node-red-contrib-yolo-object-detection",
     "version": "1.0.0",
     "description": "",
     "scripts": {
