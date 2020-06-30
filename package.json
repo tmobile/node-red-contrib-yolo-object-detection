@@ -10,11 +10,13 @@
     "license": "ISC",
     "node-red": {
         "nodes": {
-            "lower-case": "yolo-object-detection.js"
+            "yolo-object-detection": "yolo-object-detection.js"
         }
     },
     "files": [
-        "model-server/*"
+        "model-server/*",
+        "yolo-object-detection.html",
+        "yolo-object-detection.js"
     ],
     "devDependencies": {
         "eslint": "^7.3.0",
