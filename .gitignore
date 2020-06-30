@@ -1,4 +1,5 @@
 /node_modules/
-/python-scripts/env/
+/model-server/env/
 __pycache__/
 *.py[cod]
+/env/
