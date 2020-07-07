@@ -1,0 +1,3 @@
+[submodule "model-server/keras_yolo3"]
+	path = model-server/keras_yolo3
+	url = https://github.com/tmobile/keras-yolo3
