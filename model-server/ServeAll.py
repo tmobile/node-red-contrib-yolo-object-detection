@@ -181,6 +181,5 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, sig_handler)
     run_video(os.getenv("CAMERA_MODE", ""))
     yolo = init_yolo(model_weights, anchors_path, score, gpu_num, model_image_size)
-    # app.run(host='0.0.0.0', debug=False, port=8888, threaded=False)
     http_server = WSGIServer(('', 8888), app)
     http_server.serve_forever()

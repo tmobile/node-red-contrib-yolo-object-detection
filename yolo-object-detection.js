@@ -1,4 +1,5 @@
 const { spawn } = require('child_process')
+const { http } = require('http')
 
 module.exports = (RED) => {
     let python = null
@@ -74,6 +75,43 @@ module.exports = (RED) => {
                 node.debug('Node redeployed or restarted')
             }
             done()
+        })
+
+        node.on('input', function(msg, send, done) {
+            const options = {
+                hostname: 'http://localhost:8888',
+                path: '/',
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Content-Length': Buffer.byteLength(msg.payload)
+                }
+            }
+
+            let data = ''
+
+            http.request(options, res => {
+                data = ''
+                res.on('data', d => {
+                    data += d
+                })
+                res.on('end', () => {
+                    console.log(data)
+                })
+            })
+                .on('error', console.error)
+                .end(msg.payload)
+
+            send = send || function () { node.send.apply(node, arguments) }
+
+            msg.payload = data
+            send(msg)
+
+            // This call is wrapped in a check that 'done' exists
+            // so the node will work in earlier versions of Node-RED (<1.0)
+            if (done) {
+                done()
+            }
         })
     }
 
