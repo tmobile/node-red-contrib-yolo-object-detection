@@ -1,4 +1,5 @@
 const { spawn } = require('child_process')
+const http = require('http')
 
 module.exports = (RED) => {
     let python = null
@@ -27,27 +28,26 @@ module.exports = (RED) => {
 
         if (!python || python.killed) {
             node.debug('Starting python server process')
-            node.debug('Current dir is: ' + __dirname)
-            python = spawn('env/bin/python3', ['model-server/ServeAll.py'], {'cwd': __dirname})
+            node.debug(`Current dir is: ${__dirname} `)
+            python = spawn('env/bin/python3', ['model-server/ServeAll.py'], { cwd: __dirname })
 
             globalContext.set('yoloserver', python)
             node.log('Loaded Yoloserver')
 
             python.stdout.on('data', (data) => {
-                console.log(data.toString())
                 if (data.toString().includes('MODELSERVER: Model initialized')) {
                     serverStatus = { fill: 'green', shape: 'dot', text: 'connected' }
-                    node.status(serverStatus)
-                } else if (node.status.text !== 'connected') {
-                    serverStatus = { fill: 'yellow', shape: 'dot', text: 'connecting' }
                     node.status(serverStatus)
                 }
                 node.debug(data.toString())
             })
 
             python.stderr.on('data', (data) => {
+                if (data.toString().includes('MODELSERVER: Model initialized')) {
+                    serverStatus = { fill: 'green', shape: 'dot', text: 'connected' }
+                    node.status(serverStatus)
+                }
                 console.log(data.toString())
-                node.debug(data.toString())
             })
 
             python.on('close', (code, signal) => {
@@ -74,6 +74,57 @@ module.exports = (RED) => {
                 node.debug('Node redeployed or restarted')
             }
             done()
+        })
+
+        node.on('input', function (msg, send, done) {
+            const options = {
+                hostname: 'localhost',
+                path: '/',
+                port: '8888',
+                method: 'POST',
+                headers: {
+                    'Content-Length': Buffer.byteLength(msg.payload)
+                }
+            }
+
+            try {
+                JSON.parse()
+                options.headers['Content-Type'] = 'application/json'
+                node.debug('Forwarding JSON payload')
+            } catch (e) {
+                node.debug('Forwarding raw image payload')
+            }
+
+            let data = ''
+
+            http.request(options, res => {
+                data = ''
+                res.on('data', d => {
+                    data += d
+                })
+                res.on('end', () => {
+                    if (res.statusCode === 200) {
+                        node.debug(data)
+                        send = send || function () { node.send.apply(node, arguments) }
+                        msg.payload = JSON.parse(data)
+                        send(msg)
+                    } else {
+                        node.error(`Error connecting to model server, response code was ${res.statusCode} and message was ${res.statusMessage}`)
+                        serverStatus = { fill: 'red', shape: 'ring', text: 'disconnected' }
+                        node.status(serverStatus)
+                    }
+                })
+            }).on('error', () => {
+                node.error('Error connecting to model server')
+                serverStatus = { fill: 'red', shape: 'ring', text: 'disconnected' }
+                node.status(serverStatus)
+            }).end(msg.payload)
+
+            // This call is wrapped in a check that 'done' exists
+            // so the node will work in earlier versions of Node-RED (<1.0)
+            if (done) {
+                done()
+            }
         })
     }
 
