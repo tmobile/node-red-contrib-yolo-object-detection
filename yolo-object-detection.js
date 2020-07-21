@@ -87,15 +87,15 @@ module.exports = (RED) => {
             }
 
             let requestBody = null
-            try {
-                node.debug('Forwarding raw image payload')
+            if (msg.payload['video-frame'] === true) {
+                requestBody = JSON.stringify(msg.payload)
+                options.headers['Content-Type'] = 'application/json'
+                options.headers['Content-Length'] = requestBody.length
+                node.debug('Forwarding JSON payload')
+            } else {
                 requestBody = msg.payload
                 options.headers['Content-Length'] = Buffer.byteLength(requestBody)
-            } catch (e) {
-                node.debug('Forwarding JSON payload')
-                options.headers['Content-Type'] = 'application/json'
-                requestBody = JSON.stringify(msg.payload)
-                options.headers['Content-Length'] = requestBody.length
+                node.debug('Forwarding raw image payload')
             }
 
             let data = ''
