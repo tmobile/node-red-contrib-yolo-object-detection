@@ -83,15 +83,18 @@ module.exports = (RED) => {
                 port: '8888',
                 method: 'POST',
                 headers: {
-                    'Content-Length': Buffer.byteLength(msg.payload)
                 }
             }
 
-            try {
-                JSON.parse()
+            let requestBody = null
+            if (msg.payload['video-frame'] === true) {
+                requestBody = JSON.stringify(msg.payload)
                 options.headers['Content-Type'] = 'application/json'
+                options.headers['Content-Length'] = requestBody.length
                 node.debug('Forwarding JSON payload')
-            } catch (e) {
+            } else {
+                requestBody = msg.payload
+                options.headers['Content-Length'] = Buffer.byteLength(requestBody)
                 node.debug('Forwarding raw image payload')
             }
 
@@ -118,7 +121,7 @@ module.exports = (RED) => {
                 node.error('Error connecting to model server')
                 serverStatus = { fill: 'red', shape: 'ring', text: 'disconnected' }
                 node.status(serverStatus)
-            }).end(msg.payload)
+            }).end(requestBody)
 
             // This call is wrapped in a check that 'done' exists
             // so the node will work in earlier versions of Node-RED (<1.0)
