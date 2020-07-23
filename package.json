@@ -14,7 +14,6 @@
         }
     },
     "files": [
-        "1_Training/*",
         "model-server/*",
         "yolo-object-detection.html",
         "yolo-object-detection.js"
