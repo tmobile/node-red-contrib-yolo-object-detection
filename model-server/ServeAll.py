@@ -23,7 +23,7 @@ src_path = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(src_path)
 
 # Get model path. Default to home directory models/yolov3.
-MODEL_PATH = os.getenv("YOLO_MODEL_PATH",os.path.join(
+MODEL_PATH = os.getenv("MODEL_PATH",os.path.join(
     os.getenv("HOME"), "models", "yolov3"))
 
 # Lower logging level.
