@@ -1,5 +1,6 @@
 const { spawn } = require('child_process')
 const http = require('http')
+const path = require('path')
 
 module.exports = (RED) => {
     let python = null
@@ -8,10 +9,15 @@ module.exports = (RED) => {
 
     let serverStatus = { fill: 'yellow', shape: 'dot', text: 'connecting' }
 
+    let modelsDir = RED.settings.modelsDir || process.env.HOME + "/models"
+
     // Initialize the TensorFlow.js library and store it in the Global
     // context to make sure we are running only one instance
     const initObjectDetectorYolo = (node) => {
         node.status(serverStatus)
+        node.debug(`modelsDir: ${modelsDir}`)
+        node.debug(`modelName: ${node.modelName}`)
+        node.debug(`modelPath: ${node.modelPath}`)
         const globalContext = node.context().global
 
         nodeCount = globalContext.get('object-detector-node-count')
@@ -26,9 +32,21 @@ module.exports = (RED) => {
             python = globalContext.get('yoloserver')
         }
 
+        // Kill child process if model path changed to load new model.
+        node.debug(`lastModelPath: ${globalContext.get('lastModelPath')}`)
+        if (python && node.modelPath !== globalContext.get('lastModelPath')) {
+            node.debug(`New model, killing current child process`)
+            python.kill()
+            python = null
+        }
+        // Save last model path for comparison to restart when changed.
+        globalContext.set('lastModelPath', node.modelPath)
+
         if (!python || python.killed) {
             node.debug('Starting python server process')
             node.debug(`Current dir is: ${__dirname} `)
+            process.env.MODEL_PATH = node.modelPath
+            node.debug(`env MODEL_PATH: ${process.env.MODEL_PATH}`)
             python = spawn('env/bin/python3', ['model-server/ServeAll.py'], { cwd: __dirname })
 
             globalContext.set('yoloserver', python)
@@ -134,6 +152,8 @@ module.exports = (RED) => {
     function YoloObjectDetection (config) {
         RED.nodes.createNode(this, config)
         this.debug('NODE DEPLOYED AND STARTED')
+        this.modelName = config.modelName || "yolov3"
+        this.modelPath = path.join(modelsDir, this.modelName)
         initObjectDetectorYolo(this)
     }
     RED.nodes.registerType('yolo-object-detection', YoloObjectDetection)

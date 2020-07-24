@@ -4,13 +4,20 @@
         color: '#a6bbcf',
         defaults: {
             detectionServerPort: {value:"8888"},
-            name: {value:""}
+            name: {value:""},
+            modelName: {value:"yolov3"}
         },
         inputs:1,
         outputs:1,
         icon: "file.png",
         label: function() {
             return this.name||"yolo-object-detection";
+        },
+        oneditprepare: function() {
+            $("#node-input-model-name").val(this.modelName);
+        },
+        oneditsave: function() {
+            this.modelName = $("#node-input-model-name").val();
         }
     });
 </script>
@@ -19,6 +26,10 @@
     <div class="form-row">
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-model-name"><i class="icon-tag"></i> Model Name</label>
+        <input type="text" id="node-input-model-name" placeholder="Model Name">
     </div>
 </script>
 
