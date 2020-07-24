@@ -1,4 +1,5 @@
 const { spawn } = require('child_process')
+const fs = require('fs')
 const http = require('http')
 const path = require('path')
 
@@ -65,7 +66,7 @@ module.exports = (RED) => {
                     serverStatus = { fill: 'green', shape: 'dot', text: 'connected' }
                     node.status(serverStatus)
                 }
-                console.log(data.toString())
+                node.debug(data.toString())
             })
 
             python.on('close', (code, signal) => {
@@ -157,4 +158,17 @@ module.exports = (RED) => {
         initObjectDetectorYolo(this)
     }
     RED.nodes.registerType('yolo-object-detection', YoloObjectDetection)
+
+    // Create admin endpoint to list currently available models.
+    RED.httpAdmin.get("/models", function (req, res) {
+        let models = []
+        fs.readdirSync(modelsDir).forEach(fileName => {
+            let filePath = path.join(modelsDir , fileName)
+            let stat = fs.statSync(filePath)
+            if (stat && stat.isDirectory()) {
+                models.push(fileName)
+            }
+        })
+        res.json(models)
+    })
 }

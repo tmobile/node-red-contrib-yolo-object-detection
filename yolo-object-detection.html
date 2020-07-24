@@ -15,6 +15,24 @@
         },
         oneditprepare: function() {
             $("#node-input-model-name").val(this.modelName);
+
+            $("#node-config-lookup-models").click(function() {
+                $("#node-config-lookup-models").addClass('disabled');
+                $.getJSON('models',function(data) {
+                    $("#node-config-lookup-models").removeClass('disabled');
+                    var models = [];
+                    $.each(data, function(i, model) {
+                        models.push(model);
+                    });
+                    $("#node-input-model-name").autocomplete({
+                        source:models,
+                        minLength:0,
+                        close: function( event, ui ) {
+                            $("#node-input-model-name").autocomplete( "destroy" );
+                        }
+                    }).autocomplete("search","");
+                });
+            });
         },
         oneditsave: function() {
             this.modelName = $("#node-input-model-name").val();
@@ -24,12 +42,13 @@
 
 <script type="text/html" data-template-name="yolo-object-detection">
     <div class="form-row">
-        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
     </div>
     <div class="form-row">
-        <label for="node-input-model-name"><i class="icon-tag"></i> Model Name</label>
-        <input type="text" id="node-input-model-name" placeholder="Model Name">
+        <label for="node-input-model-name"><i class="fa fa-random"></i> Model Name</label>
+        <input type="text" id="node-input-model-name" style="width:70%;">
+        <a id="node-config-lookup-models" class="btn"><i id="node-config-lookup-models-icon" class="fa fa-search"></i></a>
     </div>
 </script>
 
