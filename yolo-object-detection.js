@@ -1,7 +1,9 @@
-const { spawn } = require('child_process')
+const decompress = require('decompress-zip')
 const fs = require('fs')
 const http = require('http')
+const multer = require('multer')
 const path = require('path')
+const { spawn } = require('child_process')
 
 module.exports = (RED) => {
     let python = null
@@ -170,5 +172,41 @@ module.exports = (RED) => {
             }
         })
         res.json(models)
+    })
+
+    // Create admin endpoint to upload new models.
+    // Use multer middleware to handle multipart form file data upload.
+    // Write to disk for large model files.
+    const storage = multer.diskStorage({
+        destination: function (req, file, cb) {
+            cb(null, modelsDir)
+        },
+        filename: function (req, file, cb) {
+            cb(null, file.originalname)
+        }
+    })
+    const upload = multer({storage: storage})
+    RED.httpAdmin.post("/models/upload", upload.single('file'), function (req, res, next) {
+        const file = req.file
+        if (!file) {
+            const error = new Error('Problems uploading file')
+            error.httpStatusCode = 400
+            return next(error)
+        }
+        // Extract the zip file.
+        console.log(`Unzipping file ${file.path}`)
+        const unzipper = new decompress(file.path)
+        unzipper.on("extract", function () {
+            console.log("Unzip extraction complete.")
+            // Remove zip file.
+            try {
+                fs.unlinkSync(file.path)
+            } catch (err) {
+                console.error(err)
+            }
+        })
+        unzipper.extract({ path: modelsDir })
+        // res.status(204).end()
+        res.send(file)
     })
 }

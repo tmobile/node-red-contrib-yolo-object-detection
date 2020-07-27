@@ -33,6 +33,25 @@
                     }).autocomplete("search","");
                 });
             });
+
+            $('#node-config-upload-submit').click(function (e) {
+                var fd = new FormData();
+                var uploadFile = $('#node-config-upload-file')[0].files[0];
+                $("#node-config-upload-status").html(`Uploading file ${uploadFile.name}...`)
+                fd.append('file', uploadFile);
+                $.ajax({
+                    url: '/models/upload',
+                    data: fd,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    method: 'POST',
+                    type: 'POST',
+                    success: function (data) {
+                        $("#node-config-upload-status").html(`Uploaded file ${uploadFile.name}.`)
+                    }
+                });
+            });
         },
         oneditsave: function() {
             this.modelName = $("#node-input-model-name").val();
@@ -46,9 +65,16 @@
         <input type="text" id="node-input-name" placeholder="Name">
     </div>
     <div class="form-row">
-        <label for="node-input-model-name"><i class="fa fa-random"></i> Model Name</label>
+        <label for="node-input-model-name"><i class="fa fa-cogs"></i> Model Name</label>
         <input type="text" id="node-input-model-name" style="width:70%;">
         <a id="node-config-lookup-models" class="btn"><i id="node-config-lookup-models-icon" class="fa fa-search"></i></a>
+    </div>
+    <div class="form-row">
+        <label for="node-config-upload-file"><i class="fa fa-file-archive-o"></i> Upload Model</label>
+        <input type="file" id="node-config-upload-file" placeholder="Upload" style="display: inline">
+        <label for="node-config-upload-submit"> </label>
+        <input type="submit" id="node-config-upload-submit" value="Upload" name="Upload" style="width: auto;">
+        <span type="text" id="node-config-upload-status"></span>
     </div>
 </script>
 
