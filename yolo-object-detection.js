@@ -13,6 +13,10 @@ module.exports = (RED) => {
     let serverStatus = { fill: 'yellow', shape: 'dot', text: 'connecting' }
 
     let modelsDir = RED.settings.modelsDir || process.env.HOME + "/models"
+    // Create models directory if not present.
+    if (!fs.existsSync(modelsDir)){
+        fs.mkdirSync(modelsDir);
+    }
 
     // Initialize the TensorFlow.js library and store it in the Global
     // context to make sure we are running only one instance
