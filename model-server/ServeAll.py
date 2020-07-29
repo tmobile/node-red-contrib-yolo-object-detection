@@ -19,15 +19,12 @@ def get_parent_dir(n=1):
     return current_path
 
 
-training_path = os.path.join(get_parent_dir(1), "1_Training")
 src_path = os.path.dirname(os.path.abspath(__file__))
-# utils_path = os.path.join(training_path, "Utils")
-
 sys.path.append(src_path)
-# sys.path.append(utils_path)
 
-# Get model type if specified.  Fallback to default if not specified.
-YOLO_MODEL = os.getenv("YOLO_MODEL", "yolov3")
+# Get model path. Default to home directory models/yolov3.
+MODEL_PATH = os.getenv("MODEL_PATH",os.path.join(
+    os.getenv("HOME"), "models", "yolov3"))
 
 # Lower logging level.
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -36,33 +33,10 @@ from utils import load_extractor_model, load_features, parse_input, detect_objec
 from keras_yolo3.yolo import YOLO, detect_video
 from PIL import Image, ImageFont, ImageDraw
 
-# Set up folder names for default values
-current_folder = os.path.dirname(os.path.abspath(__file__))
-data_folder = os.path.join(training_path, "Data")
-model_folder = os.path.join(data_folder, "Model_Weights")
-image_folder = os.path.join(data_folder, "Source_Images")
-image_test_folder = os.path.join(image_folder, "Test_Images")
-
-# Custom trained model settings.
-if YOLO_MODEL == "custom":
-    anchors_path = os.path.join(src_path, "keras_yolo3", "model_data", "yolo_anchors.txt")
-    classes_path = os.path.join(model_folder, "data_classes.txt")
-    model_weights = os.path.join(model_folder, "trained_weights_final.h5")
-# Custom trained model settings.
-elif YOLO_MODEL == "custom-tiny":
-    anchors_path = os.path.join(src_path, "keras_yolo3", "model_data", "yolo-tiny_anchors.txt")
-    classes_path = os.path.join(model_folder, "data_classes.txt")
-    model_weights = os.path.join(model_folder, "trained_weights_final_tiny.h5")
-# Prebuilt model settings.
-elif YOLO_MODEL == "yolov3":
-    anchors_path = os.path.join(src_path, "keras_yolo3", "model_data", "yolo_anchors.txt")
-    classes_path = os.path.join(src_path, "keras_yolo3", "model_data", "coco_classes.txt")
-    model_weights = os.path.join(model_folder, "Default", "yolo.h5")
-# Tiny prebuilt model settings.
-elif YOLO_MODEL == "yolov3-tiny":
-    anchors_path = os.path.join(src_path, "keras_yolo3", "model_data", "yolo-tiny_anchors.txt")
-    classes_path = os.path.join(src_path, "keras_yolo3", "model_data", "coco_classes.txt")
-    model_weights = os.path.join(model_folder, "Default", "yolov3-tiny.h5")
+# Set related model file paths based on base path convention.
+anchors_path = os.path.join(MODEL_PATH, "anchors.txt")
+classes_path = os.path.join(MODEL_PATH, "classes.txt")
+model_weights = os.path.join(MODEL_PATH, "weights.h5")
 
 gpu_num = 1
 model_image_size = (416, 416)

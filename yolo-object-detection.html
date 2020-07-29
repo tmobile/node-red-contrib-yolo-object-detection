@@ -4,24 +4,118 @@
         color: '#a6bbcf',
         defaults: {
             detectionServerPort: {value:"8888"},
-            name: {value:""}
+            name: {value:""},
+            modelName: {value:"yolov3"}
         },
         inputs:1,
         outputs:1,
         icon: "file.png",
         label: function() {
             return this.name||"yolo-object-detection";
+        },
+        oneditprepare: function() {
+            $("#node-input-model-name").val(this.modelName);
+
+            $("#node-config-lookup-models").click(function() {
+                $("#node-config-lookup-models").addClass('disabled');
+                $.getJSON('models',function(data) {
+                    $("#node-config-lookup-models").removeClass('disabled');
+                    var models = [];
+                    $.each(data, function(i, model) {
+                        models.push(model);
+                    });
+                    $("#node-input-model-name").autocomplete({
+                        source:models,
+                        minLength:0,
+                        close: function( event, ui ) {
+                            $("#node-input-model-name").autocomplete( "destroy" );
+                        }
+                    }).autocomplete("search","");
+                });
+            });
+
+            $('#node-config-upload-submit').click(function (e) {
+                var fd = new FormData();
+                var uploadFile = $('#node-config-upload-file')[0].files[0];
+                $("#node-config-upload-status").html(`Uploading file ${uploadFile.name}...`)
+                fd.append('file', uploadFile);
+                $.ajax({
+                    url: '/models/upload',
+                    data: fd,
+                    cache: false,
+                    contentType: false,
+                    processData: false,
+                    method: 'POST',
+                    type: 'POST',
+                    success: function (data) {
+                        $("#node-config-upload-status").html(`Uploaded file ${uploadFile.name}.`)
+                    }
+                });
+            });
+        },
+        oneditsave: function() {
+            this.modelName = $("#node-input-model-name").val();
         }
     });
 </script>
 
 <script type="text/html" data-template-name="yolo-object-detection">
     <div class="form-row">
-        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-model-name"><i class="fa fa-cogs"></i> Model Name</label>
+        <input type="text" id="node-input-model-name" style="width:70%;">
+        <a id="node-config-lookup-models" class="btn"><i id="node-config-lookup-models-icon" class="fa fa-search"></i></a>
+    </div>
+    <div class="form-row">
+        <label for="node-config-upload-file"><i class="fa fa-file-archive-o"></i> Upload Model</label>
+        <input type="file" id="node-config-upload-file" placeholder="Upload" style="display: inline">
+        <label for="node-config-upload-submit"> </label>
+        <input type="submit" id="node-config-upload-submit" value="Upload" name="Upload" style="width: auto;">
+        <span type="text" id="node-config-upload-status"></span>
     </div>
 </script>
 
 <script type="text/html" data-help-name="yolo-object-detection">
-    <p>A simple node that converts camera input into a list of recognized objects, using the YOLO3 model</p>
+    <p>A simple node that converts camera input into a list of recognized objects, using the YOLO3 model.</p>
+    
+    <h3>Properties</h3>
+    <dl class="message-properties">
+        <dt>Name
+            <span class="property-type">string</span>
+        </dt>
+        <dd> Name of the node.
+        </dd>
+        <dt>Model Name
+            <span class="property-type">string</span>
+        </dt>
+        <dd> Searchable selection of available models.  Defaults to yolov3 model.
+            Click on the magnifying glass search icon to see and select the
+            currently available models.
+        </dd>
+        <dt> Upload Model
+        </dt>
+        <dd> Upload custom model zip files you've built.
+            Click on the Choose File button to select a local model zip file.
+            Then click on Upload button to upload the model zip file.
+            You should then be able to select the model via the searchable Model Name
+            property for use in the flow.
+            
+            The model zip file should contain the following folder/file structure.
+            <ul>
+                <li>model-name
+                    <ul>
+                        <li>anchors.txt</li>
+                        <li>classes.txt</li>
+                        <li>weights.h5</li>
+                    </ul>
+                </li>
+            </ul>
+
+            Prebuilt zip packaged models for download are available
+            <a href="https://github.com/tmobile/node-red-contrib-yolo-object-detection/releases">here</a>.
+        </dd>
+    </dl>
 </script>
