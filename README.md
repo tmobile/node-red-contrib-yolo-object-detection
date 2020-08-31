@@ -23,3 +23,7 @@ This module starts a local Python model server on port 8888 (TODO - make this co
 2. Run `npm link`
 3. CD to your local node-red modules folder (`.node-red` or similar)
 4. `npm link node-red-contrib-yolo-object-detection`
+
+## Attribution
+
+* Based in part on [TrainYourOwnYOLO](https://github.com/AntonMu/TrainYourOwnYOLO) by [AntonMu](https://github.com/AntonMu)
